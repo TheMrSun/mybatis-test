@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="tk.mybatis.rbac.mapper.RoleMapper">
+
+    <resultMap id="roleMap" type="tk.mybatis.rbac.model.SysRole">
+        <result property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="enabled" column="enabled"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <cache
+            eviction="FIFO"
+            flushInterval="60000"
+            size="512"
+            readOnly="false"
+    />
+
+
+
+    <resultMap id="rolePrivilegeListMap" extends="roleMap" type="tk.mybatis.rbac.model.SysRole">
+        <collection property="privilegeList" columnPrefix="privilege_"
+                    resultMap="tk.mybatis.rbac.mapper.PrivilegeMapper.privilegeMap"/>
+    </resultMap>
+
+
+    <resultMap id="rolePrivilegeListsMap" extends="roleMap" type="tk.mybatis.rbac.model.SysRole">
+        <collection property="privilegeList" column="{id=privilege_id}" fetchType="lazy"
+                    select="tk.mybatis.rbac.mapper.PrivilegeMapper.selectPrivilegeById"/>
+    </resultMap>
+
+
+    <resultMap id="rolePrivilegeListMapChoose" type="tk.mybatis.rbac.model.SysRole">
+        <discriminator column="enabled" javaType="int">
+            <case value="0" resultMap="roleMap"/>
+            <case value="1" resultMap="rolePrivilegeListsMap"/>
+        </discriminator>
+    </resultMap>
+
+
+    <select id="selectRoleById" resultMap="roleMap">
+        select
+        *
+        from sys_role
+        where id = #{id}
+    </select>
+
+    <select id="selectRolePrivilege" resultMap="rolePrivilegeListMap">
+        select
+        r.id,
+        r.role_name,
+        r.enabled,
+        r.create_by,
+        r.create_time,
+        p.id privilege_id,
+        p.privilege_name privilege_privilege_name,
+        p.privilege_url privilege_privilege_url
+        from sys_role r
+        inner join sys_role_privilege rp on rp.role_id = r.id
+        inner join sys_privilege p on p.id = rp.privilege_id
+
+    </select>
+
+    <select id="selectRoleChoose" resultMap="rolePrivilegeListMapChoose">
+        select
+        r.id,
+        r.role_name,
+        r.enabled,
+        r.create_by,
+        r.create_time,
+        rp.privilege_id privilege_id
+        from sys_role r
+        inner join sys_role_privilege rp on rp.role_id = r.id
+        where r.id = #{roleId}
+    </select>
+
+    <update id="updateById">
+        update
+        sys_role
+        set role_name = #{roleName},
+         enabled = #{enabled},
+         create_by = #{createBy},
+         create_time = #{createTime},
+         id = #{id}
+        where id = #{id}
+    </update>
+
+
+
+
+
+</mapper>

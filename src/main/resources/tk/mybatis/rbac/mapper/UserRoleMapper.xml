@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="tk.mybatis.rbac.mapper.UserRoleMapper">
+    <select id="selectRoleByUserId" resultType="tk.mybatis.rbac.model.SysRole">
+        select
+        role.id,
+        role.role_name,
+        role.enabled,
+        role.create_by,
+        role.create_time,
+        u.user_name as "user.userName",
+        u.user_email as "user.userEmail"
+        from sys_user u
+        left join sys_user_role user_role on user_role.user_id = u.id
+        left join sys_role role on role.id = user_role.role_id
+        where
+        u.id = #{userId}
+        and role.enabled = 1
+    </select>
+</mapper>

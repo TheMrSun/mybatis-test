@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="tk.mybatis.rbac.mapper.PrivilegeMapper">
+
+    <resultMap id="privilegeMap" type="tk.mybatis.rbac.model.SysPrivilege">
+        <result property="id" column="id" />
+        <result property="privilegeName" column="privilege_name"/>
+        <result property="privilegeUrl" column="privilege_url"/>
+    </resultMap>
+
+    <cache type="org.mybatis.caches.redis.RedisCache"/>
+
+    <select id="selectPrivilegeById" resultMap="privilegeMap">
+        select *
+        from sys_privilege
+        where id = #{id}
+    </select>
+
+</mapper>
